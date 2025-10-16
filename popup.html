@@ -2,6 +2,45 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <script>
+    // Verbose logging utility for popup
+    const LOG_PREFIX = '[CanvasFilter:Popup]';
+    
+    function log(level, message, data = null) {
+      const timestamp = new Date().toISOString();
+      const logMessage = `${timestamp} ${LOG_PREFIX} [${level.toUpperCase()}] ${message}`;
+      
+      if (data !== null) {
+        console[level](logMessage, data);
+      } else {
+        console[level](logMessage);
+      }
+    }
+    
+    // Log popup initialization
+    log('info', 'Popup HTML loading...');
+    log('info', 'Popup initialization data', {
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      timestamp: Date.now()
+    });
+    
+    // Log when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      log('info', 'Popup DOM content loaded');
+      log('info', 'Popup ready for user interaction');
+    });
+    
+    // Log when popup is shown
+    window.addEventListener('load', () => {
+      log('info', 'Popup window fully loaded');
+    });
+    
+    // Log when popup is closed
+    window.addEventListener('beforeunload', () => {
+      log('info', 'Popup window closing');
+    });
+  </script>
   <style>
     body {
       width: 300px;

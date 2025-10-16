@@ -13,9 +13,9 @@ mkdir -p canvas-filter-chrome
 mkdir -p canvas-filter-edge
 
 echo "Copying common files..."
-cp content.js styles.css popup.html canvas-filter-firefox/
-cp content.js styles.css popup.html canvas-filter-chrome/
-cp content.js styles.css popup.html canvas-filter-edge/
+cp content.js styles.css popup.html inpage-router-hook.js canvas-filter-firefox/
+cp content.js styles.css popup.html inpage-router-hook.js canvas-filter-chrome/
+cp content.js styles.css popup.html inpage-router-hook.js canvas-filter-edge/
 
 echo "Copying browser-specific manifests..."
 cp manifest-firefox.json canvas-filter-firefox/manifest.json
