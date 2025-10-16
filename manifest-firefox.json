@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Canvas Opdracht Filter",
   "version": "1.0",
-  "description": "...",
+  "description": "Voegt filtermogelijkheden toe voor opdrachten en cijfers in Canvas",
   "permissions": ["activeTab", "storage"],
   "content_scripts": [
     {

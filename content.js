@@ -269,19 +269,20 @@ class CanvasExerciseFilter {
   constructor(opts = {}) {
     log('info', 'CanvasExerciseFilter constructor called', { opts });
     
-    this.mountInto = opts.mountInto || document.getElementById('GradeSummarySelectMenuGroup');
-    this.filterContainer = null;
-    this.isVisible = false;
-    this.searchBar = null;
-    this.filters = {
-      graded: false,
-      ungraded: false,
-      submitted: false,
-      notSubmitted: false,
-      subject: '',
-      dueDate: '',
-      searchTerm: ''
-    };
+     this.mountInto = opts.mountInto || document.getElementById('GradeSummarySelectMenuGroup');
+     this.filterContainer = null;
+     this.isVisible = false;
+     this.searchBar = null;
+     this.filters = {
+       graded: false,
+       ungraded: false,
+       submitted: false,
+       notSubmitted: false,
+       subject: '',
+       dueDate: '',
+       searchTerm: '',
+       sortOrder: ''
+     };
     
     log('info', 'CanvasExerciseFilter initialized with default filters', { filters: this.filters, mountInto: this.mountInto });
     this.init();
@@ -446,19 +447,20 @@ class CanvasExerciseFilter {
     try {
       this.filterContainer = document.createElement('div');
       this.filterContainer.id = 'canvas-filter-panel';
-      this.filterContainer.style.cssText = `
-        position: absolute;
-        top: 100%;
-        right: 0;
-        width: 300px;
-        background: white;
-        border: 1px solid #c7cdd1;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        z-index: 1000;
-        display: none;
-        margin-top: 8px;
-      `;
+       this.filterContainer.style.cssText = `
+         position: fixed;
+         top: 120px;
+         right: 20px;
+         width: 300px;
+         background: white;
+         border: 1px solid #c7cdd1;
+         border-radius: 4px;
+         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+         z-index: 10000;
+         display: none;
+         max-height: 80vh;
+         overflow-y: auto;
+       `;
       this.filterContainer.innerHTML = `
         <div class="filter-header">
           <h3>Filter Opdrachten</h3>
@@ -496,16 +498,28 @@ class CanvasExerciseFilter {
               <option value="Informatica">Informatica</option>
             </select>
           </div>
-          <div class="filter-section">
-            <h4>Inleverdatum</h4>
-            <select id="due-date-filter">
-              <option value="">Alle datums</option>
-              <option value="this-week">Deze week</option>
-              <option value="this-month">Deze maand</option>
-              <option value="overdue">Te laat</option>
-              <option value="upcoming">Komende week</option>
-            </select>
-          </div>
+           <div class="filter-section">
+             <h4>Inleverdatum</h4>
+             <select id="due-date-filter">
+               <option value="">Alle datums</option>
+               <option value="this-week">Deze week</option>
+               <option value="this-month">Deze maand</option>
+               <option value="overdue">Te laat</option>
+               <option value="upcoming">Komende week</option>
+             </select>
+           </div>
+           <div class="filter-section">
+             <h4>Sorteren</h4>
+             <select id="sort-order">
+               <option value="">Standaard sortering</option>
+               <option value="due-date-newest">Inleverdatum (nieuwste eerst)</option>
+               <option value="due-date-oldest">Inleverdatum (oudste eerst)</option>
+               <option value="due-date-future">Toekomstige opdrachten eerst</option>
+               <option value="due-date-past">Verleden opdrachten eerst</option>
+               <option value="name-asc">Naam (A-Z)</option>
+               <option value="name-desc">Naam (Z-A)</option>
+             </select>
+           </div>
           <div class="filter-actions">
             <button id="apply-filter" class="apply-btn">Filter Toepassen</button>
             <button id="clear-filter" class="clear-btn">Filters Wissen</button>
@@ -536,12 +550,55 @@ class CanvasExerciseFilter {
     const applyBtn = document.getElementById('apply-filter');
     const clearBtn = document.getElementById('clear-filter');
     if (closeBtn) closeBtn.addEventListener('click', () => this.hideFilterPanel());
-    if (applyBtn) applyBtn.addEventListener('click', () => this.applyFilters());
+    if (applyBtn) applyBtn.addEventListener('click', () => this.applyFilters(true));
     if (clearBtn) clearBtn.addEventListener('click', () => this.clearFilters());
 
-    const inputs = this.filterContainer.querySelectorAll('input, select');
-    inputs.forEach(input => {
-      input.addEventListener('change', () => this.applyFilters());
+    // Set up checkbox mutual exclusivity for graded/ungraded and submitted/not-submitted
+    const gradedCheckbox = document.getElementById('graded-filter');
+    const ungradedCheckbox = document.getElementById('ungraded-filter');
+    const submittedCheckbox = document.getElementById('submitted-filter');
+    const notSubmittedCheckbox = document.getElementById('not-submitted-filter');
+
+    // Make graded and ungraded mutually exclusive
+    if (gradedCheckbox && ungradedCheckbox) {
+      gradedCheckbox.addEventListener('change', () => {
+        if (gradedCheckbox.checked) {
+          ungradedCheckbox.checked = false;
+        }
+        this.applyFilters();
+      });
+      
+      ungradedCheckbox.addEventListener('change', () => {
+        if (ungradedCheckbox.checked) {
+          gradedCheckbox.checked = false;
+        }
+        this.applyFilters();
+      });
+    }
+
+    // Make submitted and not-submitted mutually exclusive
+    if (submittedCheckbox && notSubmittedCheckbox) {
+      submittedCheckbox.addEventListener('change', () => {
+        if (submittedCheckbox.checked) {
+          notSubmittedCheckbox.checked = false;
+        }
+        this.applyFilters();
+      });
+      
+      notSubmittedCheckbox.addEventListener('change', () => {
+        if (notSubmittedCheckbox.checked) {
+          submittedCheckbox.checked = false;
+        }
+        this.applyFilters();
+      });
+    }
+
+    // Set up change handlers for other inputs (selects) - these will close the panel
+    const selects = this.filterContainer.querySelectorAll('select');
+    selects.forEach(select => {
+      select.addEventListener('change', () => {
+        this.applyFilters(true); // Close panel after selecting from dropdown
+      });
     });
   }
 
@@ -560,46 +617,52 @@ class CanvasExerciseFilter {
   toggleFilterPanel() { /* ...same as yours... */ this.filterContainer.style.display = 'block'; this.isVisible = true; }
   showFilterPanel() { this.filterContainer.style.display = 'block'; this.isVisible = true; }
   hideFilterPanel() { this.filterContainer.style.display = 'none'; this.isVisible = false; }
-  applyFilters() { /* exactly your logic */ 
-    log('info', 'Applying filters');
-    
-    try {
-      const gradedElement = document.getElementById('graded-filter');
-      const ungradedElement = document.getElementById('ungraded-filter');
-      const submittedElement = document.getElementById('submitted-filter');
-      const notSubmittedElement = document.getElementById('not-submitted-filter');
-      const subjectElement = document.getElementById('subject-filter');
-      const dueDateElement = document.getElementById('due-date-filter');
-      
-      this.filters.graded = gradedElement ? gradedElement.checked : false;
-      this.filters.ungraded = ungradedElement ? ungradedElement.checked : false;
-      this.filters.submitted = submittedElement ? submittedElement.checked : false;
-      this.filters.notSubmitted = notSubmittedElement ? notSubmittedElement.checked : false;
-      this.filters.subject = subjectElement ? subjectElement.value : '';
-      this.filters.dueDate = dueDateElement ? dueDateElement.value : '';
-      
-      log('info', 'Filter values collected', { 
-        filters: this.filters,
-        elementsFound: {
-          graded: !!gradedElement,
-          ungraded: !!ungradedElement,
-          submitted: !!submittedElement,
-          notSubmitted: !!notSubmittedElement,
-          subject: !!subjectElement,
-          dueDate: !!dueDateElement
-        }
-      });
-      
-      this.saveSettings();
-      this.filterCanvasAssignments();
-      this.hideFilterPanel();
-      
-      log('info', 'Filters applied successfully');
-    } catch (error) {
-      log('error', 'Error applying filters', { error: error.message, stack: error.stack });
-      throw error;
-    }
-  }
+   applyFilters(closePanel = false) { 
+     log('info', 'Applying filters', { closePanel });
+     
+     try {
+       const gradedElement = document.getElementById('graded-filter');
+       const ungradedElement = document.getElementById('ungraded-filter');
+       const submittedElement = document.getElementById('submitted-filter');
+       const notSubmittedElement = document.getElementById('not-submitted-filter');
+       const subjectElement = document.getElementById('subject-filter');
+       const dueDateElement = document.getElementById('due-date-filter');
+       const sortOrderElement = document.getElementById('sort-order');
+       
+       this.filters.graded = gradedElement ? gradedElement.checked : false;
+       this.filters.ungraded = ungradedElement ? ungradedElement.checked : false;
+       this.filters.submitted = submittedElement ? submittedElement.checked : false;
+       this.filters.notSubmitted = notSubmittedElement ? notSubmittedElement.checked : false;
+       this.filters.subject = subjectElement ? subjectElement.value : '';
+       this.filters.dueDate = dueDateElement ? dueDateElement.value : '';
+       this.filters.sortOrder = sortOrderElement ? sortOrderElement.value : '';
+       
+       log('info', 'Filter values collected', { 
+         filters: this.filters,
+         elementsFound: {
+           graded: !!gradedElement,
+           ungraded: !!ungradedElement,
+           submitted: !!submittedElement,
+           notSubmitted: !!notSubmittedElement,
+           subject: !!subjectElement,
+           dueDate: !!dueDateElement
+         }
+       });
+       
+       this.saveSettings();
+       this.filterCanvasAssignments();
+       
+       // Only close panel if explicitly requested (e.g., from Apply button or dropdown changes)
+       if (closePanel) {
+         this.hideFilterPanel();
+       }
+       
+       log('info', 'Filters applied successfully');
+     } catch (error) {
+       log('error', 'Error applying filters', { error: error.message, stack: error.stack });
+       throw error;
+     }
+   }
   filterCanvasAssignments() { /* unchanged from yours */ 
     log('info', 'Starting to filter Canvas assignments', { filters: this.filters });
     
@@ -686,18 +749,148 @@ class CanvasExerciseFilter {
         }
       });
       
-      log('info', 'Assignment filtering completed', { 
-        total: assignments.length,
-        visible: visibleCount,
-        hidden: hiddenCount
-      });
-      
-      this.showFilterResults(assignments.length);
+       log('info', 'Assignment filtering completed', { 
+         total: assignments.length,
+         visible: visibleCount,
+         hidden: hiddenCount
+       });
+       
+       // Apply sorting if specified
+       if (this.filters.sortOrder) {
+         this.sortAssignments(assignments);
+       }
+       
+       this.showFilterResults(assignments.length);
     } catch (error) {
       log('error', 'Error filtering Canvas assignments', { error: error.message, stack: error.stack });
       throw error;
     }
   }
+  
+  sortAssignments(assignments) {
+    log('info', 'Starting assignment sorting', { sortOrder: this.filters.sortOrder });
+    
+    try {
+      const assignmentsArray = Array.from(assignments);
+      const tableBody = assignments[0]?.parentNode;
+      if (!tableBody) {
+        log('warn', 'No table body found for sorting');
+        return;
+      }
+      
+      // Sort assignments based on the selected criteria
+      assignmentsArray.sort((a, b) => {
+        switch (this.filters.sortOrder) {
+          case 'due-date-newest':
+            return this.compareDueDates(b, a); // Reverse order for newest first
+          case 'due-date-oldest':
+            return this.compareDueDates(a, b);
+          case 'due-date-future':
+            return this.compareFuturePast(a, b);
+          case 'due-date-past':
+            return this.comparePastFuture(a, b);
+          case 'name-asc':
+            return this.compareNames(a, b);
+          case 'name-desc':
+            return this.compareNames(b, a); // Reverse order for Z-A
+          default:
+            return 0;
+        }
+      });
+      
+      // Re-append sorted assignments to the table
+      assignmentsArray.forEach(assignment => {
+        tableBody.appendChild(assignment);
+      });
+      
+      log('info', 'Assignment sorting completed', { 
+        sortOrder: this.filters.sortOrder,
+        sortedCount: assignmentsArray.length 
+      });
+    } catch (error) {
+      log('error', 'Error sorting assignments', { error: error.message, stack: error.stack });
+      throw error;
+    }
+  }
+  
+  compareDueDates(a, b) {
+    const dateA = this.parseDueDate(a);
+    const dateB = this.parseDueDate(b);
+    
+    if (!dateA && !dateB) return 0;
+    if (!dateA) return 1;
+    if (!dateB) return -1;
+    
+    return dateA.getTime() - dateB.getTime();
+  }
+  
+  compareFuturePast(a, b) {
+    const now = new Date();
+    const dateA = this.parseDueDate(a);
+    const dateB = this.parseDueDate(b);
+    
+    const aIsFuture = dateA && dateA > now;
+    const bIsFuture = dateB && dateB > now;
+    
+    if (aIsFuture && !bIsFuture) return -1;
+    if (!aIsFuture && bIsFuture) return 1;
+    if (aIsFuture && bIsFuture) return this.compareDueDates(a, b);
+    if (!aIsFuture && !bIsFuture) return this.compareDueDates(a, b);
+    
+    return 0;
+  }
+  
+  comparePastFuture(a, b) {
+    const now = new Date();
+    const dateA = this.parseDueDate(a);
+    const dateB = this.parseDueDate(b);
+    
+    const aIsPast = dateA && dateA <= now;
+    const bIsPast = dateB && dateB <= now;
+    
+    if (aIsPast && !bIsPast) return -1;
+    if (!aIsPast && bIsPast) return 1;
+    if (aIsPast && bIsPast) return this.compareDueDates(b, a); // Newest first for past
+    if (!aIsPast && !bIsPast) return this.compareDueDates(a, b);
+    
+    return 0;
+  }
+  
+  compareNames(a, b) {
+    const nameA = this.getAssignmentName(a).toLowerCase();
+    const nameB = this.getAssignmentName(b).toLowerCase();
+    return nameA.localeCompare(nameB);
+  }
+  
+  parseDueDate(assignment) {
+    const dueDateCell = assignment.querySelector('.due');
+    if (!dueDateCell) return null;
+    
+    const dueDateText = dueDateCell.textContent.trim();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const monthMap = {
+      'jan': 0, 'feb': 1, 'mrt': 2, 'apr': 3, 'mei': 4, 'jun': 5,
+      'jul': 6, 'aug': 7, 'sep': 8, 'okt': 9, 'nov': 10, 'dec': 11
+    };
+    
+    const match = dueDateText.match(/(\d+)\s+(\w+)/);
+    if (!match) return null;
+    
+    const day = parseInt(match[1]);
+    const monthName = match[2].toLowerCase();
+    const month = monthMap[monthName];
+    if (month === undefined) return null;
+    
+    return new Date(now.getFullYear(), month, day);
+  }
+  
+  getAssignmentName(assignment) {
+    const titleLink = assignment.querySelector('.title a');
+    return titleLink ? titleLink.textContent.trim() : '';
+  }
+  
   matchesDueDateFilter(dueDateText) { /* unchanged */ 
     if (!this.filters.dueDate) return true;
     const now = new Date();
@@ -773,6 +966,7 @@ class CanvasExerciseFilter {
     const notSubmitted = document.getElementById('not-submitted-filter');
     const subject = document.getElementById('subject-filter');
     const dueDate = document.getElementById('due-date-filter');
+    const sortOrder = document.getElementById('sort-order');
 
     if (graded) graded.checked = false;
     if (ungraded) ungraded.checked = false;
@@ -780,6 +974,7 @@ class CanvasExerciseFilter {
     if (notSubmitted) notSubmitted.checked = false;
     if (subject) subject.value = '';
     if (dueDate) dueDate.value = '';
+    if (sortOrder) sortOrder.value = '';
     if (this.searchBar) this.searchBar.value = '';
 
     this.filters = {
@@ -789,7 +984,8 @@ class CanvasExerciseFilter {
       notSubmitted: false,
       subject: '',
       dueDate: '',
-      searchTerm: ''
+      searchTerm: '',
+      sortOrder: ''
     };
     const assignments = document.querySelectorAll('tr.student_assignment');
     assignments.forEach(a => this.toggleAssignmentVisibility(a, true));
@@ -800,15 +996,16 @@ class CanvasExerciseFilter {
     log('info', 'Saving filter settings');
     
     try {
-      const settings = {
-        graded: this.filters.graded,
-        ungraded: this.filters.ungraded,
-        submitted: this.filters.submitted,
-        notSubmitted: this.filters.notSubmitted,
-        subject: this.filters.subject,
-        dueDate: this.filters.dueDate,
-        searchTerm: this.searchBar ? this.searchBar.value : ''
-      };
+       const settings = {
+         graded: this.filters.graded,
+         ungraded: this.filters.ungraded,
+         submitted: this.filters.submitted,
+         notSubmitted: this.filters.notSubmitted,
+         subject: this.filters.subject,
+         dueDate: this.filters.dueDate,
+         searchTerm: this.searchBar ? this.searchBar.value : '',
+         sortOrder: this.filters.sortOrder
+       };
       
       log('info', 'Settings to save', { settings });
       
@@ -846,37 +1043,40 @@ class CanvasExerciseFilter {
           const s = result.canvasFilterSettings;
           log('info', 'Found saved settings', { settings: s });
           
-          const graded = document.getElementById('graded-filter');
-          const ungraded = document.getElementById('ungraded-filter');
-          const submitted = document.getElementById('submitted-filter');
-          const notSubmitted = document.getElementById('not-submitted-filter');
-          const subject = document.getElementById('subject-filter');
-          const dueDate = document.getElementById('due-date-filter');
+           const graded = document.getElementById('graded-filter');
+           const ungraded = document.getElementById('ungraded-filter');
+           const submitted = document.getElementById('submitted-filter');
+           const notSubmitted = document.getElementById('not-submitted-filter');
+           const subject = document.getElementById('subject-filter');
+           const dueDate = document.getElementById('due-date-filter');
+           const sortOrder = document.getElementById('sort-order');
 
-          const elementsFound = {
-            graded: !!graded,
-            ungraded: !!ungraded,
-            submitted: !!submitted,
-            notSubmitted: !!notSubmitted,
-            subject: !!subject,
-            dueDate: !!dueDate,
-            searchBar: !!this.searchBar
-          };
-          
-          log('info', 'Filter elements found', { elementsFound });
+           const elementsFound = {
+             graded: !!graded,
+             ungraded: !!ungraded,
+             submitted: !!submitted,
+             notSubmitted: !!notSubmitted,
+             subject: !!subject,
+             dueDate: !!dueDate,
+             sortOrder: !!sortOrder,
+             searchBar: !!this.searchBar
+           };
+           
+           log('info', 'Filter elements found', { elementsFound });
 
-          if (graded) graded.checked = !!s.graded;
-          if (ungraded) ungraded.checked = !!s.ungraded;
-          if (submitted) submitted.checked = !!s.submitted;
-          if (notSubmitted) notSubmitted.checked = !!s.notSubmitted;
-          if (subject) subject.value = s.subject || '';
-          if (dueDate) dueDate.value = s.dueDate || '';
+           if (graded) graded.checked = !!s.graded;
+           if (ungraded) ungraded.checked = !!s.ungraded;
+           if (submitted) submitted.checked = !!s.submitted;
+           if (notSubmitted) notSubmitted.checked = !!s.notSubmitted;
+           if (subject) subject.value = s.subject || '';
+           if (dueDate) dueDate.value = s.dueDate || '';
+           if (sortOrder) sortOrder.value = s.sortOrder || '';
 
-          if (this.searchBar && s.searchTerm) {
-            this.searchBar.value = s.searchTerm;
-            this.filters.searchTerm = s.searchTerm.toLowerCase();
-            log('info', 'Search bar value restored', { searchTerm: s.searchTerm });
-          }
+           if (this.searchBar && s.searchTerm) {
+             this.searchBar.value = s.searchTerm;
+             this.filters.searchTerm = s.searchTerm.toLowerCase();
+             log('info', 'Search bar value restored', { searchTerm: s.searchTerm });
+           }
           
           log('info', 'Settings loaded and applied successfully');
         } else {

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Canvas Opdracht Filter",
   "version": "1.0",
-  "description": "Voegt filtermogelijkheden toe voor opdrachten en cijfers in Canvas LMS",
+  "description": "Voegt filtermogelijkheden toe voor opdrachten en cijfers in Canvas",
   "permissions": [
     "activeTab",
     "storage"
@@ -29,7 +29,10 @@
     }
   ],
   "web_accessible_resources": [
-    "inpage-router-hook.js"
+    {
+      "resources": ["inpage-router-hook.js"],
+      "matches": ["<all_urls>"]
+    }
   ],
   "action": {
     "default_popup": "popup.html",
