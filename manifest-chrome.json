@@ -10,7 +10,6 @@
   "host_permissions": [
     "*://*.instructure.com/*",
     "*://*.canvaslms.com/*",
-    "*://canvas.*/*",
     "*://*.canvas.hu.nl/*",
     "*://*.canvas.hu/*"
   ],
@@ -19,7 +18,6 @@
       "matches": [
         "*://*.instructure.com/*",
         "*://*.canvaslms.com/*",
-        "*://canvas.*/*",
         "*://*.canvas.hu.nl/*",
         "*://*.canvas.hu/*"
       ],
@@ -31,10 +29,5 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "Canvas Opdracht Filter Instellingen"
-  },
-  "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
   }
 }
