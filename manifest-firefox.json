@@ -1,0 +1,37 @@
+{
+  "manifest_version": 2,
+  "name": "Canvas Opdracht Filter",
+  "version": "1.0",
+  "description": "Voegt filtermogelijkheden toe voor opdrachten en cijfers in Canvas LMS",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.instructure.com/*",
+        "*://*.canvaslms.com/*",
+        "*://*.canvas.hu.nl/*",
+        "*://*.canvas.hu/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Canvas Opdracht Filter Instellingen"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "applications": {
+    "gecko": {
+      "id": "canvas-opdracht-filter@example.com"
+    }
+  }
+}

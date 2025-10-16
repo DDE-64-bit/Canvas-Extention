@@ -1,0 +1,235 @@
+#canvas-filter-search {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#canvas-filter-search:focus {
+  outline: none;
+  border-color: #008ee2 !important;
+  box-shadow: 0 0 0 2px rgba(0, 142, 226, 0.25) !important;
+}
+
+#canvas-filter-btn {
+  transition: background-color 0.2s ease;
+}
+
+#canvas-filter-btn:hover {
+  background: #006bb3 !important;
+}
+
+#canvas-filter-panel {
+  font-family: "Lato Extended", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  animation: slideDown 0.2s ease-out !important;
+  background: white !important;
+  border: 1px solid #c7cdd1 !important;
+  color: #2d3b45 !important;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#canvas-filter-panel .filter-header {
+  background: white !important;
+  color: #2d3b45 !important;
+  padding: 12px 16px !important;
+  border-radius: 4px 4px 0 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  border-bottom: 1px solid #c7cdd1 !important;
+}
+
+#canvas-filter-panel .filter-header h3 {
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #2d3b45 !important;
+}
+
+#canvas-filter-panel .close-btn {
+  background: none !important;
+  border: none !important;
+  color: #2d3b45 !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: background-color 0.2s !important;
+}
+
+#canvas-filter-panel .close-btn:hover {
+  background-color: #f5f5f5 !important;
+}
+
+#canvas-filter-panel .filter-content {
+  padding: 16px !important;
+  background: white !important;
+  color: #2d3b45 !important;
+}
+
+#canvas-filter-panel .filter-section {
+  margin-bottom: 20px !important;
+}
+
+#canvas-filter-panel .filter-section h4 {
+  margin: 0 0 8px 0 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #2d3b45 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+#canvas-filter-panel .filter-section label {
+  display: block !important;
+  margin-bottom: 6px !important;
+  font-weight: 400 !important;
+  color: #2d3b45 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  line-height: 1.4 !important;
+}
+
+.filter-section input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.1);
+  accent-color: #008ee2;
+}
+
+#canvas-filter-panel .filter-section select {
+  width: 100% !important;
+  padding: 6px 8px !important;
+  border: 1px solid #c7cdd1 !important;
+  border-radius: 3px !important;
+  font-size: 14px !important;
+  background: white !important;
+  color: #2d3b45 !important;
+  font-family: "Lato Extended", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+#canvas-filter-panel .filter-section select:focus {
+  outline: none !important;
+  border-color: #008ee2 !important;
+  box-shadow: 0 0 0 2px rgba(0, 142, 226, 0.25) !important;
+}
+
+#canvas-filter-panel .filter-actions {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: 20px !important;
+}
+
+#canvas-filter-panel .apply-btn,
+#canvas-filter-panel .clear-btn {
+  flex: 1 !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  border-radius: 3px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  font-family: "Lato Extended", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+#canvas-filter-panel .apply-btn {
+  background: #008ee2 !important;
+  color: white !important;
+}
+
+#canvas-filter-panel .apply-btn:hover {
+  background: #006bb3 !important;
+}
+
+#canvas-filter-panel .clear-btn {
+  background: #6c757d !important;
+  color: white !important;
+}
+
+#canvas-filter-panel .clear-btn:hover {
+  background: #5a6268 !important;
+}
+
+/* Filtered out assignments */
+.canvas-filtered-out {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+/* Results indicator */
+#canvas-filter-results {
+  animation: fadeIn 0.3s ease-out;
+  font-family: "Lato Extended", Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  #canvas-filter-panel {
+    width: calc(100vw - 40px) !important;
+    right: 20px !important;
+    left: 20px !important;
+  }
+  
+  #canvas-filter-btn {
+    margin-right: 4px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+  
+  #canvas-filter-search {
+    width: 150px !important;
+    margin-right: 4px !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  #canvas-filter-panel {
+    background: #2d3748 !important;
+    border-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+  }
+  
+  .filter-section h4 {
+    color: #e2e8f0 !important;
+  }
+  
+  .filter-section label {
+    color: #e2e8f0 !important;
+  }
+  
+  .filter-section select {
+    background: #4a5568 !important;
+    border-color: #718096 !important;
+    color: #e2e8f0 !important;
+  }
+  
+  .filter-section select:focus {
+    border-color: #63b3ed !important;
+    box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.25) !important;
+  }
+}
