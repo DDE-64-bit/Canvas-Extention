@@ -1,4 +1,3 @@
-// Verbose logging utility for content script
 const LOG_PREFIX = '[CanvasFilter:Content]';
 
 function log(level, message, data = null) {
@@ -22,13 +21,12 @@ const ROOT_ID = 'canvas-filter-root';
 function getOrCreateRoot(menu) {
   let root = menu.querySelector(`#${ROOT_ID}`);
   if (!root) {
-    root = document.createElement('span'); // span to play nice with Canvas layout
+    root = document.createElement('span');
     root.id = ROOT_ID;
     root.style.display = 'inline-flex';
     root.style.gap = '8px';
     menu.appendChild(root);
   } else {
-    // If Canvas nuked children, we'll rebuild them below
   }
   return root;
 }
@@ -117,24 +115,20 @@ async function ensureMounted() {
   const menu = await waitForElement('#GradeSummarySelectMenuGroup');
   if (!menu) return;
 
-  // use our own root node as the source of truth
   const root = getOrCreateRoot(menu);
   const hasButton = !!root.querySelector('#canvas-filter-btn');
 
   if (!hasButton) {
     log('info', 'Mounting (button missing inside root)');
 
-    // Clear anything stale in our root (in case of partial leftovers)
     root.innerHTML = '';
 
-    // Build UI INTO our root (pass root down)
     canvasFilterInstance = new CanvasExerciseFilter({ mountInto: root });
   } else {
     log('debug', 'Already mounted (button present inside root)');
   }
 }
 
-// Keep-alive: if Canvas swaps or clears the menu, remount.
 function startKeepAlive() {
   log('info', 'Starting keep-alive observer');
   
@@ -166,7 +160,6 @@ function startKeepAlive() {
   });
 }
 
-// React to SPA route changes
 function wireRouteListeners() {
   log('info', 'Setting up route change listeners');
   
@@ -188,7 +181,6 @@ function wireRouteListeners() {
       ensureMounted();
     });
 
-    // URL fallback
     let last = location.href;
     log('info', 'Setting up URL fallback observer', { initialURL: last });
     
@@ -211,7 +203,6 @@ function wireRouteListeners() {
       config: { childList: true, subtree: true }
     });
 
-    // Also try on full load (helps hard refresh)
     window.addEventListener('load', (event) => {
       log('info', 'window load event received', { url: location.href });
       ensureMounted();
@@ -225,7 +216,6 @@ function wireRouteListeners() {
   }
 }
 
-// Boot early so we survive refreshes/iframes
 (function start() {
   log('info', 'Starting content script initialization', { 
     readyState: document.readyState,
@@ -290,7 +280,6 @@ class CanvasExerciseFilter {
   init() {
     log('info', 'CanvasExerciseFilter init() called');
     try {
-      // We already waited for the menu; now ensure mount root exists:
       if (!this.mountInto) {
         log('error', 'No mount container available');
         return;
@@ -322,7 +311,7 @@ class CanvasExerciseFilter {
       this.createFilterButton(this.mountInto);
       
       log('info', 'Creating filter panel');
-      this.createFilterPanel(menuGroup); // panel is positioned relative to menuGroup
+      this.createFilterPanel(menuGroup);
       
       log('info', 'Loading settings');
       this.loadSettings();
@@ -343,7 +332,7 @@ class CanvasExerciseFilter {
     try {
       const searchContainer = document.createElement('span');
       searchContainer.dir = 'ltr';
-      searchContainer.className = 'css-jwjvx8-view-flexItem'; // keep your styling class if you like
+      searchContainer.className = 'css-jwjvx8-view-flexItem';
       
       const searchWrapper = document.createElement('div');
       searchWrapper.style.cssText = `
@@ -379,7 +368,6 @@ class CanvasExerciseFilter {
       searchWrapper.appendChild(this.searchBar);
       searchContainer.appendChild(searchWrapper);
 
-      // append straight into the known stable parent
       parent.appendChild(searchContainer);
       log('info', 'Search bar appended to parent');
 
@@ -510,7 +498,6 @@ class CanvasExerciseFilter {
         </div>
       `;
 
-      // attach panel to the stable parent
       if (menuGroup) {
         menuGroup.style.position = 'relative';
         menuGroup.appendChild(this.filterContainer);
@@ -536,13 +523,11 @@ class CanvasExerciseFilter {
     if (applyBtn) applyBtn.addEventListener('click', () => this.applyFilters(true));
     if (clearBtn) clearBtn.addEventListener('click', () => this.clearFilters());
 
-    // Set up checkbox mutual exclusivity for graded/ungraded and submitted/not-submitted
     const gradedCheckbox = document.getElementById('graded-filter');
     const ungradedCheckbox = document.getElementById('ungraded-filter');
     const submittedCheckbox = document.getElementById('submitted-filter');
     const notSubmittedCheckbox = document.getElementById('not-submitted-filter');
 
-    // Make graded and ungraded mutually exclusive
     if (gradedCheckbox && ungradedCheckbox) {
       gradedCheckbox.addEventListener('change', () => {
         if (gradedCheckbox.checked) {
@@ -559,7 +544,6 @@ class CanvasExerciseFilter {
       });
     }
 
-    // Make submitted and not-submitted mutually exclusive
     if (submittedCheckbox && notSubmittedCheckbox) {
       submittedCheckbox.addEventListener('change', () => {
         if (submittedCheckbox.checked) {
@@ -576,11 +560,10 @@ class CanvasExerciseFilter {
       });
     }
 
-    // Set up change handlers for other inputs (selects) - these will close the panel
     const selects = this.filterContainer.querySelectorAll('select');
     selects.forEach(select => {
       select.addEventListener('change', () => {
-        this.applyFilters(true); // Close panel after selecting from dropdown
+        this.applyFilters(true);
       });
     });
   }
@@ -596,8 +579,7 @@ class CanvasExerciseFilter {
     }
   }
 
-  // (rest of your class unchanged)
-  toggleFilterPanel() { /* ...same as yours... */ this.filterContainer.style.display = 'block'; this.isVisible = true; }
+  toggleFilterPanel() { this.filterContainer.style.display = 'block'; this.isVisible = true; }
   showFilterPanel() { this.filterContainer.style.display = 'block'; this.isVisible = true; }
   hideFilterPanel() { this.filterContainer.style.display = 'none'; this.isVisible = false; }
    applyFilters(closePanel = false) { 
@@ -632,7 +614,6 @@ class CanvasExerciseFilter {
        this.saveSettings();
        this.filterCanvasAssignments();
        
-       // Only close panel if explicitly requested (e.g., from Apply button or dropdown changes)
        if (closePanel) {
          this.hideFilterPanel();
        }
@@ -643,7 +624,7 @@ class CanvasExerciseFilter {
        throw error;
      }
    }
-  filterCanvasAssignments() { /* unchanged from yours */ 
+  filterCanvasAssignments() { 
     log('info', 'Starting to filter Canvas assignments', { filters: this.filters });
     
     try {
@@ -723,7 +704,6 @@ class CanvasExerciseFilter {
          hidden: hiddenCount
        });
        
-       // Apply sorting if specified
        if (this.filters.sortOrder) {
          this.sortAssignments(assignments);
        }
@@ -746,11 +726,10 @@ class CanvasExerciseFilter {
         return;
       }
       
-      // Sort assignments based on the selected criteria
       assignmentsArray.sort((a, b) => {
         switch (this.filters.sortOrder) {
           case 'due-date-newest':
-            return this.compareDueDates(b, a); // Reverse order for newest first
+            return this.compareDueDates(b, a);
           case 'due-date-oldest':
             return this.compareDueDates(a, b);
           case 'due-date-future':
@@ -760,13 +739,12 @@ class CanvasExerciseFilter {
           case 'name-asc':
             return this.compareNames(a, b);
           case 'name-desc':
-            return this.compareNames(b, a); // Reverse order for Z-A
+            return this.compareNames(b, a);
           default:
             return 0;
         }
       });
       
-      // Re-append sorted assignments to the table
       assignmentsArray.forEach(assignment => {
         tableBody.appendChild(assignment);
       });
@@ -818,7 +796,7 @@ class CanvasExerciseFilter {
     
     if (aIsPast && !bIsPast) return -1;
     if (!aIsPast && bIsPast) return 1;
-    if (aIsPast && bIsPast) return this.compareDueDates(b, a); // Newest first for past
+    if (aIsPast && bIsPast) return this.compareDueDates(b, a);
     if (!aIsPast && !bIsPast) return this.compareDueDates(a, b);
     
     return 0;
@@ -859,7 +837,7 @@ class CanvasExerciseFilter {
     return titleLink ? titleLink.textContent.trim() : '';
   }
   
-  matchesDueDateFilter(dueDateText) { /* unchanged */ 
+  matchesDueDateFilter(dueDateText) { 
     if (!this.filters.dueDate) return true;
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
