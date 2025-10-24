@@ -278,7 +278,6 @@ class CanvasExerciseFilter {
        ungraded: false,
        submitted: false,
        notSubmitted: false,
-       subject: '',
        dueDate: '',
        searchTerm: '',
        sortOrder: ''
@@ -482,22 +481,6 @@ class CanvasExerciseFilter {
               <input type="checkbox" id="not-submitted-filter"> Niet ingeleverd
             </label>
           </div>
-          <div class="filter-section">
-            <h4>Vak</h4>
-            <select id="subject-filter">
-              <option value="">Alle vakken</option>
-              <option value="Nederlands">Nederlands</option>
-              <option value="Engels">Engels</option>
-              <option value="Wiskunde">Wiskunde</option>
-              <option value="Natuurkunde">Natuurkunde</option>
-              <option value="Scheikunde">Scheikunde</option>
-              <option value="Biologie">Biologie</option>
-              <option value="Geschiedenis">Geschiedenis</option>
-              <option value="Aardrijkskunde">Aardrijkskunde</option>
-              <option value="Economie">Economie</option>
-              <option value="Informatica">Informatica</option>
-            </select>
-          </div>
            <div class="filter-section">
              <h4>Inleverdatum</h4>
              <select id="due-date-filter">
@@ -625,7 +608,6 @@ class CanvasExerciseFilter {
        const ungradedElement = document.getElementById('ungraded-filter');
        const submittedElement = document.getElementById('submitted-filter');
        const notSubmittedElement = document.getElementById('not-submitted-filter');
-       const subjectElement = document.getElementById('subject-filter');
        const dueDateElement = document.getElementById('due-date-filter');
        const sortOrderElement = document.getElementById('sort-order');
        
@@ -633,7 +615,6 @@ class CanvasExerciseFilter {
        this.filters.ungraded = ungradedElement ? ungradedElement.checked : false;
        this.filters.submitted = submittedElement ? submittedElement.checked : false;
        this.filters.notSubmitted = notSubmittedElement ? notSubmittedElement.checked : false;
-       this.filters.subject = subjectElement ? subjectElement.value : '';
        this.filters.dueDate = dueDateElement ? dueDateElement.value : '';
        this.filters.sortOrder = sortOrderElement ? sortOrderElement.value : '';
        
@@ -644,7 +625,6 @@ class CanvasExerciseFilter {
            ungraded: !!ungradedElement,
            submitted: !!submittedElement,
            notSubmitted: !!notSubmittedElement,
-           subject: !!subjectElement,
            dueDate: !!dueDateElement
          }
        });
@@ -697,18 +677,6 @@ class CanvasExerciseFilter {
           if (submittedCell && submittedCell.textContent.includes('Ingeleverd')) {
             shouldShow = false;
             log('debug', `Assignment ${index} hidden: is submitted`, { assignment, submittedCell });
-          }
-        }
-        if (shouldShow && this.filters.subject) {
-          const contextDiv = assignment.querySelector('.context');
-          if (!contextDiv || !contextDiv.textContent.includes(this.filters.subject)) {
-            shouldShow = false;
-            log('debug', `Assignment ${index} hidden: subject mismatch`, { 
-              assignment, 
-              contextDiv, 
-              expectedSubject: this.filters.subject,
-              actualContext: contextDiv?.textContent
-            });
           }
         }
         if (shouldShow && this.filters.dueDate) {
@@ -964,7 +932,6 @@ class CanvasExerciseFilter {
     const ungraded = document.getElementById('ungraded-filter');
     const submitted = document.getElementById('submitted-filter');
     const notSubmitted = document.getElementById('not-submitted-filter');
-    const subject = document.getElementById('subject-filter');
     const dueDate = document.getElementById('due-date-filter');
     const sortOrder = document.getElementById('sort-order');
 
@@ -972,7 +939,6 @@ class CanvasExerciseFilter {
     if (ungraded) ungraded.checked = false;
     if (submitted) submitted.checked = false;
     if (notSubmitted) notSubmitted.checked = false;
-    if (subject) subject.value = '';
     if (dueDate) dueDate.value = '';
     if (sortOrder) sortOrder.value = '';
     if (this.searchBar) this.searchBar.value = '';
@@ -982,7 +948,6 @@ class CanvasExerciseFilter {
       ungraded: false,
       submitted: false,
       notSubmitted: false,
-      subject: '',
       dueDate: '',
       searchTerm: '',
       sortOrder: ''
@@ -1001,7 +966,6 @@ class CanvasExerciseFilter {
          ungraded: this.filters.ungraded,
          submitted: this.filters.submitted,
          notSubmitted: this.filters.notSubmitted,
-         subject: this.filters.subject,
          dueDate: this.filters.dueDate,
          searchTerm: this.searchBar ? this.searchBar.value : '',
          sortOrder: this.filters.sortOrder
@@ -1047,7 +1011,6 @@ class CanvasExerciseFilter {
            const ungraded = document.getElementById('ungraded-filter');
            const submitted = document.getElementById('submitted-filter');
            const notSubmitted = document.getElementById('not-submitted-filter');
-           const subject = document.getElementById('subject-filter');
            const dueDate = document.getElementById('due-date-filter');
            const sortOrder = document.getElementById('sort-order');
 
@@ -1056,7 +1019,6 @@ class CanvasExerciseFilter {
              ungraded: !!ungraded,
              submitted: !!submitted,
              notSubmitted: !!notSubmitted,
-             subject: !!subject,
              dueDate: !!dueDate,
              sortOrder: !!sortOrder,
              searchBar: !!this.searchBar
@@ -1068,7 +1030,6 @@ class CanvasExerciseFilter {
            if (ungraded) ungraded.checked = !!s.ungraded;
            if (submitted) submitted.checked = !!s.submitted;
            if (notSubmitted) notSubmitted.checked = !!s.notSubmitted;
-           if (subject) subject.value = s.subject || '';
            if (dueDate) dueDate.value = s.dueDate || '';
            if (sortOrder) sortOrder.value = s.sortOrder || '';
 
